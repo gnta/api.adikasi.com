@@ -1,0 +1,5 @@
+# Ignore all files in the mysql directory
+mysql/*
+
+# Except the .keep file
+!mysql/.keep

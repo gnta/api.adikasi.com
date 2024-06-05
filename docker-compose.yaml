@@ -1,0 +1,47 @@
+name: "adikasi"
+
+networks:
+  laravel:
+    name: laravel
+    driver: bridge
+
+services:
+  adikasi.api:
+    image: nginx:stable-alpine
+    container_name: adikasi.api
+    ports:
+      - "8080:80"
+    networks:
+      - laravel
+    volumes:
+      - "./laravel:/var/www/html"
+      - "./nginx/default.conf:/etc/nginx/conf.d/default.conf"
+    depends_on:
+      - adikasi.mysql
+      - adikasi.php
+
+  adikasi.php:
+    container_name: adikasi.php
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "php:8.2-composer"
+    volumes:
+      - "./laravel:/var/www/html"
+    networks:
+      - laravel
+
+  adikasi.mysql:
+    image: mariadb:10.4.32
+    container_name: adikasi.mysql
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - "./mysql:/var/lib/mysql"
+    environment:
+      MARIADB_DATABASE: laravel
+      MARIADB_USER: root
+      MARIADB_PASSWORD: root
+      MARIADB_ROOT_PASSWORD: root
+    networks:
+      - laravel
