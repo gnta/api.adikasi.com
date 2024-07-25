@@ -17,5 +17,6 @@ abstract class TestCase extends BaseTestCase
     {
         $res->assertStatus($errorStatus);
         $this->assertNotNull($res->json('error.message'));
+        $this->assertNotNull($res->json('error.trace_id'));
     }
 }
