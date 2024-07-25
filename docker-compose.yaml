@@ -23,7 +23,7 @@ services:
   adikasi.php:
     container_name: adikasi.php
     build:
-      context: .
+      context: ./laravel
       dockerfile: Dockerfile
     image: "php:8.2-composer"
     volumes:
