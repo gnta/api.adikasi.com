@@ -25,10 +25,14 @@ class RegistrationTest extends TestCase
         $res->assertJsonStructure([
             'data' => [
                 'name',
-                'email'
+                'email',
+                'token'
             ]
         ]);
 
+        $this->assertNotNull($res->json('data.name'));
+        $this->assertNotNull($res->json('data.email'));
+        $this->assertNotNull($res->json('data.token'));
         $this->assertNull($res->json('data.password'));
 
         $this->assertEquals(1, User::count());
@@ -78,13 +82,5 @@ class RegistrationTest extends TestCase
 
         $res = $this->postJson('/register', $payload);
         $this->isErrorSafety($res, 422);
-    }
-
-
-
-    private function isErrorSafety(\Illuminate\Testing\TestResponse $res, $errorStatus)
-    {
-        $res->assertStatus($errorStatus);
-        $this->assertNotNull($res->json('error.message'));
     }
 }

@@ -13,4 +13,9 @@ abstract class TestCase extends BaseTestCase
 
         DB::delete('delete from users');
     }
+    protected function isErrorSafety(\Illuminate\Testing\TestResponse $res, $errorStatus)
+    {
+        $res->assertStatus($errorStatus);
+        $this->assertNotNull($res->json('error.message'));
+    }
 }
