@@ -10,6 +10,7 @@ use App\Traits\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -29,6 +30,7 @@ class AuthController extends Controller
         URL::forceRootUrl($req->schemeAndHttpHost());
 
         $token = Auth::login($user);
+        event(new Registered($user));
         $user->sendEmailVerificationNotification();
 
         return $this->response(

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Carbon\Carbon;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -11,20 +12,29 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 
 class RegistrationTest extends TestCase
 {
-    protected $payload = [
-        'name' => 'Adikasi System Testing',
-        'email' => 'test@adikasi.com',
-        'password' => 'test',
-        'password_confirmation' => 'test'
-    ];
+    protected $payload = [];
+    function setUp(): void
+    {
+        parent::setUp();
+
+        $this->payload = [
+            'name' => 'Adikasi System Testing',
+            'email' => 'test@adikasi.com',
+            'password' => 'test',
+            'password_confirmation' => 'test'
+        ];
+    }
 
     public function test_success(): void
     {
-
+        Mail::fake();
         $res = $this->postJson('/register', $this->payload);
         $res->assertStatus(200);
         $res->assertJsonStructure([
@@ -58,7 +68,7 @@ class RegistrationTest extends TestCase
 
     public function test_fail_invalid_email()
     {
-        $this->payload['password_confirmation'] = 'adikasi.com';
+        $this->payload['email'] = 'adikasi.com';
 
         $res = $this->postJson('/register', $this->payload);
         $this->isErrorSafety($res, 422);
@@ -79,12 +89,141 @@ class RegistrationTest extends TestCase
         $this->isErrorSafety($res, 422);
     }
 
+    public function test_verify_registration_success()
+    {
+        $this->seed([UserSeeder::class]);
+
+        Notification::fake();
+        Mail::fake();
+
+        $user = User::first();
+        $notification = new VerifyEmail();
+        $user->notify($notification);
+
+
+
+        // Step 2: Retrieve the notification instance
+        $sentNotification = Notification::sent($user, VerifyEmail::class)->first();
+
+        $mail = $sentNotification->toMail($user);
+
+        $tempUrl  = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $user->getKey(),
+                'hash' => sha1($user->getEmailForVerification()),
+            ]
+        );
+
+        $this->assertEquals($mail->actionUrl, $tempUrl);
+
+        $res = $this->getJson($mail->actionUrl);
+
+        $res->assertStatus(200);
+        $res->assertJson([
+            'data' => true
+        ]);
+
+        $user->refresh();
+
+        $this->assertNotNull($user->email_verified_at);
+        $this->assertTrue($user->hasVerifiedEmail());
+    }
+
+    public function test_verify_registration_fail_expire_link()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $user = User::first();
+
+        $tempUrl  = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->subMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $user->getKey(),
+                'hash' => sha1($user->getEmailForVerification()),
+            ]
+        );
+
+        $res = $this->getJson($tempUrl);
+        $this->isErrorSafety($res, 253);
+    }
+
+    public function test_verify_registration_fail_invalid_id()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $user = User::first();
+
+        $tempUrl  = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $user->getKey() + 100,
+                'hash' => sha1($user->getEmailForVerification()),
+            ]
+        );
+
+        $res = $this->getJson($tempUrl);
+        $this->isErrorSafety($res, 253);
+    }
+
+    public function test_verify_registration_fail_invalid_hash()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $user = User::first();
+
+        $validHash = sha1($user->getEmailForVerification());
+
+        $validUrl  = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $user->getKey(),
+                'hash' => $validHash,
+            ]
+        );
+
+        $validUrl = str_replace($validHash, $validHash . 'sakldalsdas', $validUrl);
+
+        Log::info($validUrl);
+
+        $res = $this->getJson($validUrl);
+        $this->isErrorSafety($res, 253);
+    }
+
+    public function test_verify_registration_fail_invalid_signature()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $user = User::first();
+        $validUrl  = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $user->getKey(),
+                'hash' => sha1($user->getEmailForVerification()),
+            ]
+        );
+
+        $parsedUrl = parse_url($validUrl);
+        parse_str($parsedUrl['query'], $queryParams);
+
+        $validUrl = str_replace($queryParams['signature'], substr($queryParams['signature'], 0, 10) . 'sakldalsdas', $validUrl);
+        Log::info($validUrl);
+        $res = $this->getJson($validUrl);
+        $this->isErrorSafety($res, 253);
+    }
+
     public function test_email_url_based_on_host_requestor()
     {
         Notification::fake();
+        Mail::fake();
+
         Notification::assertNothingSent();
 
-        Mail::fake();
         $faker = \Faker\Factory::create();
         $domain = $faker->domainName();
 
