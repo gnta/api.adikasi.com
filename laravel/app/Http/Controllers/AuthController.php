@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Traits\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 
 class AuthController extends Controller
 {
@@ -19,18 +20,22 @@ class AuthController extends Controller
         $data = $req->validated();
         $user = new User();
 
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        $user->password = $data['password'];
+        $user =  User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ]);
 
-        $user->save();
+        URL::forceRootUrl($req->schemeAndHttpHost());
 
+        $token = Auth::login($user);
+        $user->sendEmailVerificationNotification();
 
         return $this->response(
             data: [
                 'name' => $user->name,
                 'email' => $user->email,
-                'token' => Auth::login($user)
+                'token' => $token
             ]
         );
     }

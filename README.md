@@ -9,7 +9,7 @@ docker exec -it adikasi.mysql mysql -u root -p
 Running Test
 
 ```bash
-docker exec adikasi.php php artisan test
+docker exec adikasi.php php artisan test --env=testing
 ```
 
 Install Setup
