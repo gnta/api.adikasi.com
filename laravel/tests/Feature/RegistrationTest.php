@@ -187,9 +187,6 @@ class RegistrationTest extends TestCase
         );
 
         $validUrl = str_replace($validHash, $validHash . 'sakldalsdas', $validUrl);
-
-        Log::info($validUrl);
-
         $res = $this->getJson($validUrl);
         $this->isErrorSafety($res, 253);
     }
@@ -212,7 +209,7 @@ class RegistrationTest extends TestCase
         parse_str($parsedUrl['query'], $queryParams);
 
         $validUrl = str_replace($queryParams['signature'], substr($queryParams['signature'], 0, 10) . 'sakldalsdas', $validUrl);
-        Log::info($validUrl);
+
         $res = $this->getJson($validUrl);
         $this->isErrorSafety($res, 253);
     }
