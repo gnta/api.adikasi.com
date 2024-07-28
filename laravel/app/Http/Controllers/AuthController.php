@@ -6,9 +6,11 @@ use App\Exceptions\ErrorResponse;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
 use App\Traits\Response;
 use Error;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
@@ -72,21 +74,54 @@ class AuthController extends Controller
     {
         $data = $req->validated();
 
-
-        $user = User::where('email', $data['email'])->select('email')->first();
+        $user = User::where('email', $data['email'])
+            ->select('email')
+            ->first();
 
         if (is_null($user)) throw new ErrorResponse(
             code: 404,
             message: 'Email not found'
         );
 
+        URL::forceRootUrl($req->schemeAndHttpHost());
+
         $status = Password::sendResetLink([
             'email' => $user->email
         ]);
 
-        URL::forceRootUrl($req->schemeAndHttpHost());
+        if ($status !== Password::RESET_LINK_SENT) throw new ErrorResponse(
+            code: 422,
+            message: $status
+        );
 
-        if (!$status === Password::RESET_LINK_SENT) throw new ErrorResponse(
+        return $this->response(
+            data: true,
+            message: $status
+        );
+    }
+
+    public function resetPassword(ResetPasswordRequest $req)
+    {
+        $data = $req->validated();
+
+        $status = Password::reset(
+            [
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'token' => $data['token'],
+            ],
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => $password
+                ]);
+
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) throw new ErrorResponse(
             code: 422,
             message: $status
         );

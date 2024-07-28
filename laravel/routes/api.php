@@ -17,6 +17,5 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
 Route::get('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 Route::get('/email/verify', [VerificationController::class, 'notice'])->name('verification.notice');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
-Route::get('/reset-password/{token}', function (string $token) {
-    return view('auth.reset-password', ['token' => $token]);
-})->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+Route::get('/reset-password/{token}')->name('password.reset');

@@ -100,9 +100,6 @@ class RegistrationTest extends TestCase
         $notification = new VerifyEmail();
         $user->notify($notification);
 
-
-
-        // Step 2: Retrieve the notification instance
         $sentNotification = Notification::sent($user, VerifyEmail::class)->first();
 
         $mail = $sentNotification->toMail($user);
