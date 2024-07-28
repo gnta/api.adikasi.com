@@ -55,4 +55,13 @@ class LoginTest extends TestCase
 
         $this->isErrorSafety($response, 422);
     }
+
+    public function test_fail_not_sending_data(): void
+    {
+        $this->seed([UserSeeder::class]);
+
+        $response = $this->postJson('/login', []);
+
+        $this->isErrorSafety($response, 422);
+    }
 }

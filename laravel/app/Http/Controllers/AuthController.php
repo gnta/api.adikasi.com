@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ErrorResponse;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
-use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
+use App\Services\LoginService;
 use App\Traits\Response;
-use Error;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,27 +46,14 @@ class AuthController extends Controller
         );
     }
 
-    public function login(LoginRequest $req)
+    public function login(Request $req)
     {
-        $data = $req->validated();
+        return $this->_login($req->all());
+    }
 
-        if (!$token = Auth::attempt([
-            'email' => $data['email'],
-            'password' => $data['password']
-        ])) throw new ErrorResponse(
-            code: 422,
-            message: 'Invalid email or password'
-        );
-
-        $user = Auth::user();
-
-        return $this->response(
-            data: [
-                'name' => $user->name,
-                'email' => $user->email,
-                'token' => $token
-            ]
-        );
+    public function loginProvider(Request $req, $provider)
+    {
+        return $this->_login($req->all(), $provider);
     }
 
     public function forgotPassword(ForgotPasswordRequest $req)
@@ -129,6 +115,21 @@ class AuthController extends Controller
         return $this->response(
             data: true,
             message: $status
+        );
+    }
+
+    private function _login($data, $provider = 'basic')
+    {
+        $service =  new LoginService($provider);
+
+        [$token, $user] = $service->attempt($data);
+
+        return $this->response(
+            data: [
+                'name' => $user->name,
+                'email' => $user->email,
+                'token' => $token
+            ]
         );
     }
 }
