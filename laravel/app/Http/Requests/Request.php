@@ -25,7 +25,9 @@ abstract class Request extends FormRequest
         $messageBag = $validator->getMessageBag();
 
         throw new ErrorResponse(
-            data: $messageBag,
+            data: [
+                'form' => $messageBag
+            ],
             type: 'validation',
             message: $messageBag->first(),
             code: 422

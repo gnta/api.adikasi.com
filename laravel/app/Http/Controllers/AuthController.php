@@ -108,7 +108,7 @@ class AuthController extends Controller
 
         if ($status !== Password::PASSWORD_RESET) throw new ErrorResponse(
             code: 422,
-            message: $status
+            message: __('messages.welcome')
         );
 
         return $this->response(
