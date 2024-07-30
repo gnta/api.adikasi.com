@@ -55,7 +55,7 @@ class Google extends Base
             }
 
             throw new ErrorResponse(
-                message: "Fail decode google token : {$err->getMessage()}",
+                message: "Fail decode google token",
                 code: 422
             );
         }

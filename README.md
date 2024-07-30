@@ -12,6 +12,12 @@ Running Test
 docker exec adikasi.php php artisan test --env=testing
 ```
 
+Runing Migration
+
+```
+docker exec adikasi.php php artisan migrate --env=testing
+```
+
 Install Setup
 
 1. Run command `docker exec adikasi.php composer install`

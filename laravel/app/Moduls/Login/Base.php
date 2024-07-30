@@ -15,7 +15,7 @@ abstract class Base implements Contract
             code: 422,
             message: $errors->first(),
             data: [
-                'form' => $errors->all()
+                'form' => $errors
             ]
         );
     }
