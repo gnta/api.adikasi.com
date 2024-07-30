@@ -35,7 +35,6 @@ class AuthController extends Controller
 
         $token = Auth::login($user);
         event(new Registered($user));
-        $user->sendEmailVerificationNotification();
 
         return $this->response(
             data: [
