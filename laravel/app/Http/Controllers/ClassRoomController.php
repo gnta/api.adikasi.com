@@ -36,12 +36,7 @@ class ClassRoomController extends Controller
     {
         $data = $req->validated();
 
-        $room = ClassRoom::where('id', $roomId)->where('owner_id', Auth::id())->first();
-
-        if (is_null($room)) throw new ErrorResponse(
-            code: 404,
-            message: 'Not found class room'
-        );
+        $room = $this->findOrFail($roomId);
 
         $room = ClassRoomService::update(
             room: $room,
@@ -54,5 +49,29 @@ class ClassRoomController extends Controller
                 'name' => $room->name
             ]
         );
+    }
+
+    function delete($roomId)
+    {
+        $room = $this->findOrFail($roomId);
+        $room->delete();
+
+        return $this->response(
+            data: true
+        );
+    }
+
+
+
+    private function findOrFail($roomId): ClassRoom
+    {
+        $room = ClassRoom::where('id', $roomId)->where('owner_id', Auth::id())->first();
+
+        if (is_null($room)) throw new ErrorResponse(
+            code: 404,
+            message: 'Not found class room'
+        );
+
+        return $room;
     }
 }

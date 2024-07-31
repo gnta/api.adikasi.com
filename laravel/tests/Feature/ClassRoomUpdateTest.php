@@ -118,7 +118,7 @@ class ClassRoomUpdateTest extends TestCase
         $this->assertEquals($payload['owner_id'], $newRoom->owner_id);
     }
 
-    public function test_fail_new_owner_id_is_nou_found(): void
+    public function test_fail_new_owner_id_is_not_found(): void
     {
         $this->seed([UserSeeder::class, ClassRoomSeeder::class]);
         [$adi, $token] = $this->_adi();
@@ -155,6 +155,28 @@ class ClassRoomUpdateTest extends TestCase
         ]);
 
         $this->isErrorSafety($res, 422);
+    }
+
+    public function test_fail_room_not_found(): void
+    {
+        $this->seed([UserSeeder::class, ClassRoomSeeder::class]);
+        [$kasi,] = $this->_kasi();
+        [$adi, $token] = $this->_adi();
+
+
+        $room = ClassRoom::where('owner_id', $adi->id)->first();
+        $roomId = $room->id + 20;
+
+        $payload = [
+            'name' => "Update Classses Name",
+            'owner_id' => $kasi->id
+        ];
+
+        $res = $this->patchJson("/classes/$roomId", $payload, [
+            'Authorization' => "Bearer $token"
+        ]);
+
+        $this->isErrorSafety($res, 404);
     }
 
     public function test_fail_try_to_change_other_user_class_room(): void

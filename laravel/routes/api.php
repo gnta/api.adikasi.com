@@ -24,3 +24,4 @@ Route::get('/reset-password/{token}')->name('password.reset');
 
 Route::post('/classes', [ClassRoomController::class, 'create'])->middleware(['auth']);
 Route::patch('/classes/{roomId}', [ClassRoomController::class, 'update'])->middleware(['auth']);
+Route::delete('/classes/{roomId}', [ClassRoomController::class, 'delete'])->middleware(['auth']);
