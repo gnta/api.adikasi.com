@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\ClassRoom;
+use App\Services\ClassRoomService;
 use Database\Seeders\ClassRoomSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,9 +24,7 @@ class ClassRoomTest extends TestCase
 
     public function test_relation_user_null()
     {
-        $room = new ClassRoom();
-        $room->name = 'Missing owner';
-        $room->save();
+        $room = ClassRoomService::create('Missing owner');
 
         $this->assertNotNull($room->id);
         $this->assertNull($room->owner);

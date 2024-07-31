@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -20,3 +21,5 @@ Route::get('/email/verify', [VerificationController::class, 'notice'])->name('ve
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 Route::get('/reset-password/{token}')->name('password.reset');
+
+Route::post('/classes', [ClassRoomController::class, 'create'])->middleware(['auth']);
