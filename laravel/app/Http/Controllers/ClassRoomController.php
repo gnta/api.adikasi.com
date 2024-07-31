@@ -61,7 +61,22 @@ class ClassRoomController extends Controller
         );
     }
 
+    function allMy()
+    {
+        $paginate = ClassRoom::where('owner_id', Auth::id());
 
+        $paginate = $paginate->paginate();
+
+        return $this->response(
+            data: $paginate->items(),
+            metadata: [
+                'current_page' => $paginate->currentPage(),
+                'per_page' => $paginate->perPage(),
+                'total_page' => $paginate->lastPage(),
+                'total_row' => $paginate->total()
+            ]
+        );
+    }
 
     private function findOrFail($roomId): ClassRoom
     {
