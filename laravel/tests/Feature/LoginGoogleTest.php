@@ -57,6 +57,8 @@ class LoginGoogleTest extends TestCase
     {
         $this->seed([UserSeeder::class]);
 
+        $totalUser = User::count();
+
         $user = User::first();
 
         $expectedPayload = [
@@ -93,7 +95,7 @@ class LoginGoogleTest extends TestCase
         $this->assertEquals($expectedPayload['name'], $res->json('data.name'));
         $this->assertEquals($expectedPayload['email'], $res->json('data.email'));
 
-        $this->assertEquals(1, User::count());
+        $this->assertEquals($totalUser, User::count());
     }
 
     public function test_fail_not_sending_data()

@@ -4,7 +4,7 @@ namespace App\Http\Requests\ClassRoom;
 
 use Illuminate\Support\Facades\Auth;
 
-class CreateRequest extends \App\Http\Requests\Request
+class UpdateRequest extends \App\Http\Requests\Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,8 @@ class CreateRequest extends \App\Http\Requests\Request
     public function rules(): array
     {
         return [
-            'name' => 'required|string'
+            'name' => 'nullable|string',
+            'owner_id' => 'nullable|numeric'
         ];
     }
 }

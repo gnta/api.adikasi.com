@@ -14,11 +14,20 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::insert([
-            'name' => 'test',
-            'email' => 'test@adikasi.com',
-            'password' => bcrypt('test'),
-            'created_at' => now(),
-            'updated_at' => now(),
+            [
+                'name' => 'adi',
+                'email' => 'adi@adikasi.com',
+                'password' => bcrypt('test'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'kasi',
+                'email' => 'kasi@adikasi.com',
+                'password' => bcrypt('test'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }

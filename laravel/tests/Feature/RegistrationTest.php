@@ -80,7 +80,7 @@ class RegistrationTest extends TestCase
 
         $payload = [
             'name' => 'Adikasi System Testing',
-            'email' => 'test@adikasi.com',
+            'email' => 'adi@adikasi.com',
             'password' => 'test',
             'password_confirmation' => 'test'
         ];

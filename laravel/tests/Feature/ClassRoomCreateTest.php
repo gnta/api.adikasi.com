@@ -9,13 +9,17 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Tests\Mock\UserMock;
 use Tests\TestCase;
 
 class ClassRoomCreateTest extends TestCase
 {
+    use UserMock;
+
     public function test_success(): void
     {
-        [$user, $token] = $this->_user();
+        $this->seed([UserSeeder::class]);
+        [$user, $token] = $this->_adi();
 
         $payload = [
             'name' => 'New class'
@@ -42,7 +46,8 @@ class ClassRoomCreateTest extends TestCase
 
     public function test_fail_not_sending()
     {
-        [$user, $token] = $this->_user();
+        $this->seed([UserSeeder::class]);
+        [$user, $token] = $this->_adi();
 
         $payload = [];
 
@@ -60,15 +65,5 @@ class ClassRoomCreateTest extends TestCase
         $res = $this->postJson('/classes', $payload, []);
 
         $this->isErrorSafety($res, 401);
-    }
-
-
-    private function _user()
-    {
-        $this->seed([UserSeeder::class]);
-        $user = User::first();
-        $token = Auth::login($user);
-
-        return [$user, $token];
     }
 }
