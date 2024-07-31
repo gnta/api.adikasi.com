@@ -11,6 +11,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        DB::delete('delete from class_rooms');
         DB::delete('delete from users');
     }
     protected function isErrorSafety(\Illuminate\Testing\TestResponse $res, $errorStatus)

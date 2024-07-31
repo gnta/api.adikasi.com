@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -73,5 +74,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function classRooms(): HasMany
+    {
+        return $this->hasMany(ClassRoom::class, 'owner_id');
     }
 }
