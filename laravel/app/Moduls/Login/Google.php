@@ -40,10 +40,11 @@ class Google extends Base
             $user = User::where('email', $payload['email'])->first();
 
             if (is_null($user)) {
-                $user = new User();
-
-                $user->email = $payload['email'];
-                $user->name = $payload['name'];
+                $user = new User([
+                    'email' => $payload['email'],
+                    'name' => $payload['name'],
+                    'is_anonim' => false,
+                ]);
                 $user->save();
                 $user->markEmailAsVerified();
             }

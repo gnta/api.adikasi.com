@@ -56,6 +56,7 @@ class RegistrationTest extends TestCase
         $this->assertEquals($this->payload['name'], $user->name);
         $this->assertEquals($this->payload['email'], $user->email);
         $this->assertTrue(Hash::check($this->payload['password'], $user->password));
+        $this->assertFalse($user->isAnonim());
     }
 
     public function test_fail_password_not_match()

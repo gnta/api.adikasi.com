@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         'name',
         'email',
         'password',
+        'is_anonim'
     ];
 
     /**
@@ -79,5 +80,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
     public function classRooms(): HasMany
     {
         return $this->hasMany(ClassRoom::class, 'owner_id');
+    }
+
+
+    public function isAnonim()
+    {
+        return $this->is_anonim == true;
     }
 }

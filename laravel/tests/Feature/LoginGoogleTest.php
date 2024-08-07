@@ -51,6 +51,11 @@ class LoginGoogleTest extends TestCase
         $this->assertEquals($expectedPayload['email'], $res->json('data.email'));
 
         $this->assertEquals(1, User::count());
+
+        $user = User::first();
+
+        $this->assertTrue($user->hasVerifiedEmail());
+        $this->assertFalse($user->isAnonim());
     }
 
     public function test_success_login_and_not_create_a_new_user(): void

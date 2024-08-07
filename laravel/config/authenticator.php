@@ -3,6 +3,6 @@
 return [
     'providers' => [
         'google' => \App\Moduls\Login\Google::class,
-        'basic' => \App\Moduls\Login\Basic::class
+        'adikasi' => \App\Moduls\Login\Adikasi::class
     ]
 ];
