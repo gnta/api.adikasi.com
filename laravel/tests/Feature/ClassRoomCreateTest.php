@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ClassRoom;
+use App\Models\Student;
 use App\Models\User;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +17,7 @@ class ClassRoomCreateTest extends TestCase
 {
     use UserMock;
 
-    public function test_success(): void
+    public function test_success_just_name(): void
     {
         $this->seed([UserSeeder::class]);
         [$user, $token] = $this->_adi();
@@ -42,6 +43,68 @@ class ClassRoomCreateTest extends TestCase
 
         $room = ClassRoom::first();
         $this->assertEquals($user->id, $room->owner_id);
+    }
+
+    public function test_success_with_student_anonim()
+    {
+        $this->seed([UserSeeder::class]);
+        [, $token] = $this->_adi();
+
+        $payload = [
+            'name' => 'New class',
+            'students' => [
+                ['name' => 'Andi'],
+                ['name' => 'Budi'],
+            ]
+        ];
+
+        $res = $this->postJson('/classes', $payload, [
+            'Authorization' => "Bearer $token"
+        ]);
+
+        $res->assertStatus(200);
+        $students = Student::where('class_room_id', $res->json('data.id'))->orderBy('id', 'asc')->get();
+        $this->assertEquals(count($payload['students']), count($students));
+
+        for ($i = 0; $i < count($students); $i++) {
+            $this->assertEquals($payload['students'][$i]['name'], $students[$i]->name);
+        }
+    }
+
+    public function test_success_with_student_linked()
+    {
+        $this->seed([UserSeeder::class]);
+        [, $token] = $this->_adi();
+        [$kasi, $token] = $this->_kasi();
+
+        $payload = [
+            'name' => 'New class',
+            'students' => [
+                ['name' => 'Andi'],
+                ['name' => 'Budi'],
+                [
+                    'name' => $kasi->name,
+                    'email' => $kasi->email
+                ],
+            ]
+        ];
+
+        $res = $this->postJson('/classes', $payload, [
+            'Authorization' => "Bearer $token"
+        ]);
+
+        $res->assertStatus(200);
+        $students = Student::where('class_room_id', $res->json('data.id'))->orderBy('id', 'asc')->get();
+        $this->assertEquals(count($payload['students']), count($students));
+
+        for ($i = 0; $i < count($students); $i++) {
+            $payloadStudent = $payload['students'][$i];
+            $this->assertEquals($payloadStudent['name'], $students[$i]->name);
+
+            if (isset($payloadStudent['email'])) {
+                $this->assertEquals($kasi->id, $students[$i]->user_id);
+            }
+        }
     }
 
     public function test_fail_not_sending()

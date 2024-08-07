@@ -22,7 +22,10 @@ class CreateRequest extends \App\Http\Requests\Request
     public function rules(): array
     {
         return [
-            'name' => 'required|string'
+            'name' => 'required|string',
+            'students' => 'nullable|array',
+            'students.*.name' => 'string|required_with:students',
+            'students.*.email' => 'nullable|email',
         ];
     }
 }
