@@ -6,6 +6,7 @@ use App\Exceptions\ErrorResponse;
 use App\Http\Requests\ClassRoom\CreateRequest;
 use App\Http\Requests\ClassRoom\UpdateRequest;
 use App\Models\ClassRoom;
+use App\Models\Student;
 use App\Services\ClassRoomService;
 use App\Traits\Response;
 use Illuminate\Http\Request;
@@ -63,7 +64,11 @@ class ClassRoomController extends Controller
 
     function allMy()
     {
-        $paginate = ClassRoom::where('owner_id', Auth::id());
+        $userId = Auth::id();
+        $paginate = ClassRoom::where('owner_id', $userId)
+            ->union(Student::select('class_rooms.*')
+                ->where('user_id', $userId)
+                ->join('class_rooms', 'students.class_room_id', '=', 'class_room_id'));
 
         $paginate = $paginate->paginate();
 
