@@ -26,6 +26,10 @@ class CreateRequest extends \App\Http\Requests\Request
             'students' => 'nullable|array',
             'students.*.name' => 'string|required_with:students',
             'students.*.email' => 'nullable|email',
+            'subjects' => 'nullable|array',
+            'subjects.*.name' => 'string|required_with:subjects',
+            'subjects.*.teacherName' => 'nullable|string',
+            'subjects.*.teacherEmail' => 'nullable|email',
         ];
     }
 }

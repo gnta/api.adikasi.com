@@ -23,8 +23,8 @@ class ClassRoomController extends Controller
         $room = ClassRoomService::create(
             name: $data['name'],
             owner: Auth::user(),
-            students: $data['students'] ?? []
-
+            students: $data['students'] ?? [],
+            subjects: $data['subjects'] ?? []
         );
 
         return $this->response(

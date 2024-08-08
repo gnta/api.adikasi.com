@@ -21,9 +21,9 @@ class ClassRoom extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function students()
+    public function getMemberByRole(string $roleName)
     {
-        $roleStudent = ClassRoleService::get('student');
+        $role = ClassRoleService::get($roleName);
 
         return DB::table('class_member_roles as cmr')
             ->join('class_members as cm', function ($join) {
@@ -37,7 +37,7 @@ class ClassRoom extends Model
                     });
             })
             ->where('cmr.class_room_id', $this->id)
-            ->where('cmr.class_role_id', $roleStudent->id)
+            ->where('cmr.class_role_id', $role->id)
             ->groupBy('cm.id')
             ->select('cm.*')
             ->get();
