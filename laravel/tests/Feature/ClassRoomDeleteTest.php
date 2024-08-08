@@ -2,8 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\ClassMember;
+use App\Models\ClassMemberRole;
 use App\Models\ClassRoom;
+use App\Models\ClassSubject;
+use Database\Seeders\ClassMemberRoleSeeder;
+use Database\Seeders\ClassRoleSeeder;
 use Database\Seeders\ClassRoomSeeder;
+use Database\Seeders\ClassSubjectSeeder;
+use Database\Seeders\SubjectSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -16,7 +23,14 @@ class ClassRoomDeleteTest extends TestCase
 
     public function test_success(): void
     {
-        $this->seed([UserSeeder::class, ClassRoomSeeder::class]);
+        $this->seed([
+            UserSeeder::class,
+            ClassRoomSeeder::class,
+            ClassRoleSeeder::class,
+            ClassMemberRoleSeeder::class,
+            SubjectSeeder::class,
+            ClassSubjectSeeder::class
+        ]);
 
         [$adi, $token] = $this->_adi();
         $room = ClassRoom::where('owner_id', $adi->id)->first();
@@ -32,6 +46,9 @@ class ClassRoomDeleteTest extends TestCase
         ]);
 
         $this->assertNull(ClassRoom::find($roomId));
+        $this->assertEquals(0, ClassMember::where('class_room_id', $roomId)->count());
+        $this->assertEquals(0, ClassMemberRole::where('class_room_id', $roomId)->count());
+        $this->assertEquals(0, ClassSubject::where('class_room_id', $roomId)->count());
     }
 
     public function test_fail_not_found_room(): void

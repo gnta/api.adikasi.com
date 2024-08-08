@@ -6,10 +6,13 @@ use App\Exceptions\ErrorResponse;
 use App\Http\Requests\ClassRoom\CreateRequest;
 use App\Http\Requests\ClassRoom\UpdateRequest;
 use App\Models\ClassMember;
+use App\Models\ClassMemberRole;
 use App\Models\ClassRoom;
+use App\Models\ClassSubject;
 use App\Services\ClassRoomService;
 use App\Traits\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ClassRoomController extends Controller
@@ -56,12 +59,27 @@ class ClassRoomController extends Controller
 
     function delete($roomId)
     {
-        $room = $this->findOrFail($roomId);
-        $room->delete();
+        try {
+            DB::beginTransaction();
+            $room = $this->findOrFail($roomId);
 
-        return $this->response(
-            data: true
-        );
+            ClassMember::where('class_room_id', $roomId)->delete();
+            ClassMemberRole::where('class_room_id', $roomId)->delete();
+            ClassSubject::where('class_room_id', $roomId)->delete();
+
+            $room->delete();
+
+            DB::commit();
+            return $this->response(
+                data: true
+            );
+        } catch (\Exception $err) {
+            DB::rollBack();
+
+            if ($err instanceof ErrorResponse) throw $err;
+
+            throw new ErrorResponse(message: $err->getMessage(), code: 500);
+        }
     }
 
     function allMy()

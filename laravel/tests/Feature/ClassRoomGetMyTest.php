@@ -4,8 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\ClassMember;
 use App\Models\ClassRoom;
+use Database\Seeders\ClassMemberSeeder;
+use Database\Seeders\ClassRoleSeeder;
 use Database\Seeders\ClassRoomSeeder;
-use Database\Seeders\StudentSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -70,7 +71,7 @@ class ClassRoomGetMyTest extends TestCase
 
     public function test_success_gel_all_my_owner_with_my_class_as_member()
     {
-        $this->seed([UserSeeder::class, ClassRoomSeeder::class, StudentSeeder::class]);
+        $this->seed([UserSeeder::class, ClassRoomSeeder::class, ClassRoleSeeder::class, ClassMemberSeeder::class]);
         [$adi, $token] = $this->_adi();
 
         $res = $this->get('/my/classes', [

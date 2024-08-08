@@ -71,8 +71,6 @@ class ClassRoomService
                 $roleTeacher = ClassRoleService::get('teacher');
                 $currentTime = now();
 
-
-
                 foreach ($subjects as $subject) {
                     $userId = null;
                     $teacherName = $subject['teacherName'] ?? null;
