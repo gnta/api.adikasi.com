@@ -3,12 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\ClassRoom;
-use App\Models\Student;
-use App\Models\User;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Tests\Mock\UserMock;
 use Tests\TestCase;
@@ -63,7 +60,9 @@ class ClassRoomCreateTest extends TestCase
         ]);
 
         $res->assertStatus(200);
-        $students = Student::where('class_room_id', $res->json('data.id'))->orderBy('id', 'asc')->get();
+
+        $students = ClassRoom::find($res->json('data.id'))->students();
+
         $this->assertEquals(count($payload['students']), count($students));
 
         for ($i = 0; $i < count($students); $i++) {
@@ -94,7 +93,7 @@ class ClassRoomCreateTest extends TestCase
         ]);
 
         $res->assertStatus(200);
-        $students = Student::where('class_room_id', $res->json('data.id'))->orderBy('id', 'asc')->get();
+        $students = ClassRoom::find($res->json('data.id'))->students();
         $this->assertEquals(count($payload['students']), count($students));
 
         for ($i = 0; $i < count($students); $i++) {

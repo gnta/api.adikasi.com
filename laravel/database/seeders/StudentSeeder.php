@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\ClassMember;
+use App\Models\ClassMemberRole;
 use App\Models\ClassRoom;
-use App\Models\Student;
 use App\Models\User;
+use App\Services\ClassRoleService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,10 +17,11 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
-        $students = [];
+        $members = [];
         $faker = \Faker\Factory::create();
+
         foreach (ClassRoom::all() as $class) {
-            $students[] = [
+            $members[] = [
                 'name' => $faker->word(),
                 'class_room_id' => $class->id,
                 'user_id' => null,
@@ -28,7 +31,7 @@ class StudentSeeder extends Seeder
 
             $user = User::where('id', '!=', $class->owner_id)->first();
 
-            $students[] = [
+            $members[] = [
                 'name' => $faker->word(),
                 'class_room_id' => $class->id,
                 'user_id' => $user->id,
@@ -37,6 +40,19 @@ class StudentSeeder extends Seeder
             ];
         }
 
-        Student::insert($students);
+        ClassMember::insert($members);
+
+        $roles = [];
+        $roleTeacher = ClassRoleService::get('student');
+
+        foreach (ClassMember::where('user_id', '!=', null)->get() as $member) {
+            $roles[] = [
+                'class_room_id' => $member->class_room_id,
+                'user_id' => $member->user_id,
+                'class_role_id' => $roleTeacher->id
+            ];
+        }
+
+        ClassMemberRole::insert($roles);
     }
 }

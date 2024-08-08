@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\Exceptions\ErrorResponse;
+use App\Models\ClassMember;
+use App\Models\ClassMemberRole;
 use App\Models\ClassRoom;
-use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -22,10 +23,12 @@ class ClassRoomService
             $room->save();
 
             if (!empty($students)) {
-                $batch = [];
+                $members = [];
+                $roles = [];
 
                 $students = collect($students);
                 $usersEmail = $students->pluck('email');
+                $roleStudent = ClassRoleService::get('student');
 
                 $DBusers = User::whereIn('email', $usersEmail)->get()->keyBy('email');
 
@@ -35,22 +38,26 @@ class ClassRoomService
                         $userId = null;
                         $currentTime = now();
 
-                        if ($email) {
-                            $userId = $DBusers[$email]->id;
-                        }
+                        if ($email) $userId = $DBusers[$email]->id;
 
-
-                        $batch[] = [
+                        $members[] = [
                             'class_room_id' => $room->id,
                             'name' => $student['name'],
                             'user_id' => $userId,
                             'created_at' => $currentTime,
                             'updated_at' => $currentTime
                         ];
+
+                        $roles[] = [
+                            'class_room_id' => $room->id,
+                            'user_id' => $userId,
+                            'class_role_id' => $roleStudent->id
+                        ];
                     }
                 }
 
-                if (!empty($batch)) Student::insert($batch);
+                if (!empty($members)) ClassMember::insert($members);
+                if (!empty($roles)) ClassMemberRole::insert($roles);
             }
 
             DB::commit();
@@ -58,9 +65,7 @@ class ClassRoomService
         } catch (\Exception  $err) {
             DB::rollBack();
 
-            if ($err instanceof ErrorResponse) {
-                throw $err;
-            }
+            if ($err instanceof ErrorResponse) throw $err;
 
             throw new ErrorResponse(message: $err->getMessage(), code: 500);
         }

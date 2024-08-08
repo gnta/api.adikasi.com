@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\ClassMember;
 use App\Models\ClassRoom;
-use App\Models\Student;
 use Database\Seeders\ClassRoomSeeder;
 use Database\Seeders\StudentSeeder;
 use Database\Seeders\UserSeeder;
@@ -68,7 +68,7 @@ class ClassRoomGetMyTest extends TestCase
         $this->assertEquals(2, $res->json('metadata.current_page'));
     }
 
-    public function test_success_gel_all_my_owner_with_my_class_ass_students()
+    public function test_success_gel_all_my_owner_with_my_class_as_member()
     {
         $this->seed([UserSeeder::class, ClassRoomSeeder::class, StudentSeeder::class]);
         [$adi, $token] = $this->_adi();
@@ -81,7 +81,7 @@ class ClassRoomGetMyTest extends TestCase
         $res->assertJsonStructure($this->stucure);
 
         $total = ClassRoom::where('owner_id', $adi->id)->count();
-        $total += Student::where('user_id', $adi->id)->count();
+        $total += ClassMember::where('user_id', $adi->id)->count();
 
         $this->assertEquals(1, $res->json('metadata.current_page'));
         $this->assertEquals($total, $res->json('metadata.total_row'));

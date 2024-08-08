@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use Database\Seeders\ClassRoleSeeder;
+use Database\Seeders\SubjectSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
 
@@ -15,9 +17,11 @@ abstract class TestCase extends BaseTestCase
         DB::delete('delete from class_roles');
         DB::delete('delete from class_subjects');
         DB::delete('delete from subjects');
-        DB::delete('delete from students');
         DB::delete('delete from class_rooms');
         DB::delete('delete from users');
+
+        // Master Data
+        $this->seed([SubjectSeeder::class, ClassRoleSeeder::class]);
     }
     protected function isErrorSafety(\Illuminate\Testing\TestResponse $res, $errorStatus)
     {
