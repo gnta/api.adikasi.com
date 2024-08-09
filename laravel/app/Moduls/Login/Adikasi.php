@@ -6,7 +6,7 @@ use App\Exceptions\ErrorResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class Basic extends Base
+class Adikasi extends Base
 {
     public function attempt(array $cridentials): array
     {

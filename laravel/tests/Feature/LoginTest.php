@@ -14,7 +14,7 @@ class LoginTest extends TestCase
         $this->seed([UserSeeder::class]);
 
         $response = $this->postJson('/login', [
-            'email' => 'test@adikasi.com',
+            'email' => 'adi@adikasi.com',
             'password' => 'test'
         ]);
 
@@ -49,7 +49,7 @@ class LoginTest extends TestCase
         $this->seed([UserSeeder::class]);
 
         $response = $this->postJson('/login', [
-            'email' => 'test@adikasi.com',
+            'email' => 'adi@adikasi.com',
             'password' => 'salah'
         ]);
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateMiddleware;
 use App\Http\Middleware\ContextTracingMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(ContextTracingMiddleware::class);
+        $middleware->alias([
+            'auth' => AuthenticateMiddleware::class
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

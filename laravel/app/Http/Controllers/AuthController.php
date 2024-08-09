@@ -29,6 +29,7 @@ class AuthController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
+            'is_anonim' => false
         ]);
 
         URL::forceRootUrl($req->schemeAndHttpHost());
@@ -117,7 +118,7 @@ class AuthController extends Controller
         );
     }
 
-    private function _login($data, $provider = 'basic')
+    private function _login($data, $provider = 'adikasi')
     {
         $service =  new LoginService($provider);
 
